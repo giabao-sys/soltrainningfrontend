@@ -1,20 +1,15 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { useConfiguration } from 'src/contexts/ConfigProvider/ConfigProvider';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import Page from '../../components/Page';
-import FarmItem from './components/FarmItem';
-import noFarm from '../../assets/img/no-farm.svg';
 import Spacer from 'src/components/Spacer';
 import Select from 'react-select';
-import { FarmingPool, PoolConfig } from 'src/diamondhand/config';
-import { createAddLiquidityLink, createRemoveLiquidityLink } from 'src/farms';
-import { flatten } from 'src/utils/objects';
+import VaultItem from './components/VaultItem';
+import { useConfiguration } from 'src/contexts/ConfigProvider/ConfigProvider';
+import { flatten } from 'lodash';
 
-const Farms: React.FC = () => {
-  const config = useConfiguration();
+const Vaults: React.FC = () => {
   const [expanded, setExpanded] = useState(-1);
-  // const [rewards, setRewards] = useState([] as BigNumber[]);
-
+  const config = useConfiguration();
   const toggle = (index: number) => {
     if (expanded !== -1 && expanded === index) {
       setExpanded(-1);
@@ -23,38 +18,17 @@ const Farms: React.FC = () => {
     }
   };
 
-  const getPoolConfig = useCallback((pool: FarmingPool, masterChef: string): PoolConfig => {
-    return Object.assign(pool, {
-      id: pool.id,
-      masterChefAddress: masterChef,
-      wantDecimals: pool.wantDecimals || 18,
-      market: pool.market,
-      marketSymbol: pool.marketSymbol,
-      farmUrl: pool.farmUrl,
-      partnerPoolAddress: pool.partnerPoolAddress,
-    });
-  }, []);
-
-  const allPools = useMemo(() => {
-    if (!config?.farms) {
-      return [];
+  const vaultInfo = useMemo(() => {
+    if (!config?.vaults) {
+      return;
     }
-    return flatten(
-      config?.farms.map((t) =>
-        t.pools.map((p) => Object.assign(p, { masterChef: t.masterChef })),
-      ),
-    );
-  }, [config?.farms]);
+    return config?.vaults[0]
+  }, [config?.vaults]);
 
   return (
     <Page>
       <StyledBody>
-        {!allPools.length && (
-          <StyledNoFarm>
-            <img src={noFarm} />
-            No farm
-          </StyledNoFarm>
-        )}
+        <div> Vault</div>
         <StyledFarmGrid>
           <StyledFarmGridHeader>
             <StyledFarmGridHeaderCell>Asset</StyledFarmGridHeaderCell>
@@ -62,15 +36,12 @@ const Farms: React.FC = () => {
             <StyledFarmGridHeaderCell>Deposited</StyledFarmGridHeaderCell>
           </StyledFarmGridHeader>
           <StyledFarmGridBody>
-            {(allPools || []).map((p: FarmingPool, index: number) => (
-              <FarmItem
-                key={index}
-                index={index}
-                expanded={expanded === index}
-                toggle={toggle}
-                poolConfig={getPoolConfig(p, p.masterChef)}
-              />
-            ))}
+            {vaultInfo && <VaultItem
+              index={0}
+              expanded={expanded === 0}
+              toggle={toggle}
+              vaultInfo={vaultInfo}
+            />}
           </StyledFarmGridBody>
         </StyledFarmGrid>
         <Spacer size="lg" />
@@ -104,21 +75,6 @@ const StyledFarmGridBody = styled.div`
   display: grid;
   grid-template-columns: repeat(1 1fr);
   grid-gap: 20px;
-`;
-
-const StyledNoFarm = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin: 100px auto;
-  font-size: 16px;
-  font-weight: normal;
-  color: #8f929a;
-  img {
-    width: 120px;
-    margin-bottom: 14px;
-  }
 `;
 
 export const StyledDropdowns = styled.div`
@@ -270,4 +226,4 @@ export const StyledStakeTvlValue = styled.div`
 
 export const StyledBody = styled.div``;
 
-export default Farms;
+export default Vaults;

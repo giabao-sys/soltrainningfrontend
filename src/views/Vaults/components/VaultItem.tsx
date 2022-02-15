@@ -1,97 +1,85 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useCallback } from 'react';
 import TokenSymbol from 'src/components/TokenSymbol';
 import styled from 'styled-components';
 import TokenSymbolMini from '../../../components/TokenSymbol/TokenSymbolMini';
-import { useBlockNumber } from 'src/state/application/hooks';
-import { formatSecs } from 'src/utils/formatTime';
-import StakeLPComponent from './StakeLPComponent';
-import UnstakeLPComponent from './UnstakeLPComponent';
 import Spacer from 'src/components/Spacer';
-import { BigNumber } from '@ethersproject/bignumber';
-import { PoolConfig } from 'src/diamondhand/config';
-import useMyReward from 'src/hooks/useMyReward';
 import Number from 'src/components/Number';
 import useDiamondHand from 'src/hooks/useDiamondHand';
 import useHandleTransactionReceipt from 'src/hooks/useHandleTransactionReceipt';
-import useMyDeposited from 'src/hooks/useMyDeposited';
+import { useConfiguration } from 'src/contexts/ConfigProvider/ConfigProvider';
+import StakeLPVaultComponent from './StakeLPVaultComponent';
+import UnstakeLPVaultComponent from './UnstakeLPVaultComponent';
+import useMyVaultReward from 'src/hooks/useMyVaultReward';
+import { Vault } from 'src/diamondhand/config';
+import useMyVaultDeposited from 'src/hooks/useMyVaultDeposited';
 
-export type FarmItemProps = {
+export type VaultItemProps = {
   index: number;
-  poolConfig: PoolConfig;
   expanded: boolean;
   toggle: (index: number) => void;
+  vaultInfo: Vault
 };
 
-const FarmItem: React.FC<FarmItemProps> = ({
+const VaultItem: React.FC<VaultItemProps> = ({
   index,
-  poolConfig,
   expanded,
   toggle,
+  vaultInfo
 }) => {
-  const {
+  const dh = useDiamondHand();
+  var {
     token0,
     token1,
-    profitSharing,
-    isLp,
-    rewardToken,
-    coming,
-    inactive,
     market,
     marketSymbol,
-    farmUrl,
-  } = poolConfig;
+    rewardToken
+  } = vaultInfo;
 
-  const blockNumber = useBlockNumber();
-  const startFarmingBlock = 15285556;
-  const eta = useMemo(() => {
-    if (!blockNumber) return;
-    const now = Date.now();
-    const delta = startFarmingBlock - blockNumber;
-    if (delta < 0) {
-      return;
-    }
-    return Math.floor(now / 1000 + delta * 2.1);
-  }, [blockNumber, startFarmingBlock]);
 
   const expandRow = useCallback(() => {
-    if (farmUrl) {
-      window.open(farmUrl, '_blank');
-      return;
-    }
     if (!expanded) {
       toggle(index);
     }
-  }, [farmUrl, expanded, toggle, index]);
+  }, [expanded, toggle, index]);
 
   const toggleRow = useCallback(
     ($event) => {
-      if (farmUrl) return;
       toggle(index);
       $event.preventDefault();
       $event.stopPropagation();
     },
-    [farmUrl, toggle, index],
+    [toggle, index],
   );
 
-  const reward = useMyReward(BigNumber.from(poolConfig.id));
-  const deposited = useMyDeposited(BigNumber.from(poolConfig.id));
+  const reward = useMyVaultReward();
+  const deposited = useMyVaultDeposited();
   const handleTransactionReceipt = useHandleTransactionReceipt();
-  const dh = useDiamondHand();
   const claim = useCallback(async () => {
     const tx = await handleTransactionReceipt(
-      dh?.MASTERCHEF.deposit(BigNumber.from(poolConfig.id), BigNumber.from(0)),
-      `claim`,
+      dh?.VAULTSLP.claimRewards(),
+      `claim reward`,
     );
 
     if (tx && tx.response) {
       await tx.response.wait();
       tx.hideModal();
     }
-  }, [dh?.MASTERCHEF, handleTransactionReceipt, poolConfig.id]);
+  }, [dh?.VAULTSLP, handleTransactionReceipt]);
+
+  const compound = useCallback(async () => {
+    const tx = await handleTransactionReceipt(
+      dh?.VAULTSLP.compound(),
+      `compound`,
+    );
+
+    if (tx && tx.response) {
+      await tx.response.wait();
+      tx.hideModal();
+    }
+  }, [dh?.VAULTSLP, handleTransactionReceipt]);
   return (
     <StyledContainer
-      isSticky={coming && profitSharing && !isLp}
       isExpand={expanded}
       onClick={expandRow}
     >
@@ -139,31 +127,19 @@ const FarmItem: React.FC<FarmItemProps> = ({
         </StyledHeaderCell>
         <StyledHeaderCell paddingLeft={10} hiddenXs={true}>
           <StyledHeaderDataValue highlight={true}>
-          <Number value={deposited} decimals={18} precision={6} />
+            <Number value={deposited} decimals={18} precision={16} />
           </StyledHeaderDataValue>
         </StyledHeaderCell>
       </StyledHeader>
-      {expanded && !farmUrl ? (
+      {expanded  ? (
         <StyledContent>
           <StyledInnerContent>
-            {coming && eta ? (
-              <StyledCountdown>
-                Current block: <span>{blockNumber}</span>.<br />
-                Farming reward will emit from block <span>{startFarmingBlock}</span>.
-                Estimated time <span>{formatSecs(eta)}</span>.
-              </StyledCountdown>
-            ) : null}
-            {inactive && (
-              <StyleInactive>
-                This pool is currently inactive. Please unstake and withdraw your funds.
-              </StyleInactive>
-            )}
             <StyledControl>
               <StyledControlItem className="balance">
-                <StakeLPComponent poolConfig={poolConfig} />
+                <StakeLPVaultComponent vaultInfo={vaultInfo} />
               </StyledControlItem>
               <StyledControlItem className="deposited">
-                <UnstakeLPComponent poolConfig={poolConfig} />
+                <UnstakeLPVaultComponent vaultInfo={vaultInfo} />
               </StyledControlItem>
             </StyledControl>
           </StyledInnerContent>
@@ -177,6 +153,7 @@ const FarmItem: React.FC<FarmItemProps> = ({
                 <span className="symbol">&nbsp;{rewardToken}</span>
                 <Spacer size="sm" />
                 <Button onClick={claim}>Claim</Button>
+                <Button className='compound' onClick={compound}>Compound</Button>
               </StylePendingRewards>
             </div>
           </StyledClaimContainer>
@@ -239,28 +216,6 @@ const StyledControlItem = styled.div`
   }
 `;
 
-const StyledCountdown = styled.div`
-  font-size: 14px;
-  margin-bottom: 20px;
-  span {
-    font-weight: 400;
-    color: #fea430;
-  }
-  @media (max-width: 768px) {
-    margin-top: 20px;
-  }
-`;
-
-const StyleInactive = styled.div`
-  font-size: 14px;
-  margin-bottom: 20px;
-  font-weight: 400;
-  color: #d33535;
-  @media (max-width: 768px) {
-    margin-top: 20px;
-  }
-`;
-
 const StyledClaimContainer = styled.div`
   display: flex;
   align-items: center;
@@ -317,7 +272,7 @@ const StyledClaimContainer = styled.div`
   }
 `;
 
-const StyledContainer = styled.div<{ isExpand?: boolean; isSticky?: boolean }>`
+const StyledContainer = styled.div<{ isExpand?: boolean }>`
   width: 100%;
   padding: 10px 10px;
   border-radius: 8px;
@@ -489,6 +444,11 @@ const Button = styled.button`
     margin-right: 5px;
     height: 20px;
   }
+
+  &.compound {
+    background-color: #72b76c;
+    margin-left: 10px;
+  }
 `;
 
-export default FarmItem;
+export default VaultItem;

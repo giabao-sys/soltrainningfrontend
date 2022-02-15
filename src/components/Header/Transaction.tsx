@@ -2,8 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 import { useConfiguration } from 'src/contexts/ConfigProvider/ConfigProvider';
 import { TransactionDetails } from 'src/state/transactions/reducer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleNotch } from '@fortawesome/pro-regular-svg-icons';
 
 interface TransactionProps {
   tx: TransactionDetails;

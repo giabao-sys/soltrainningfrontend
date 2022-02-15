@@ -3,6 +3,7 @@ import deploymentLocal from './diamondhand/deployments/deployments.localhost.jso
 import deploymentTestnet from './diamondhand/deployments/deployments.testnet.json';
 import deploymentMainnet from './diamondhand/deployments/deployments.mainnet.json';
 import { AllFarms } from './farms';
+import { AllVaults } from './vaults';
 
 const configurations: { [env: string]: Configuration } = {
   development: {
@@ -18,14 +19,17 @@ const configurations: { [env: string]: Configuration } = {
     maxUnclaimedRefresh: 5,
     backendDisabled: false,
     farms: AllFarms,
+    vaults: AllVaults,
     abis: {
-      SERC20: deploymentLocal.SERC20.abi,
+      SERC20: deploymentLocal.TATU.abi,
       MasterChef: deploymentLocal.MasterChef.abi,
+      VaultSLP: deploymentLocal.VaultSLP.abi,
     },
     addresses: {
-      SERC20: deploymentLocal.SERC20.address,
+      SERC20: deploymentLocal.TATU.address,
       MasterChef: deploymentLocal.MasterChef.address,
-      Multicall: deploymentLocal.Multicall.address,
+      VaultSLP: deploymentLocal.VaultSLP.address,
+      Multicall: deploymentLocal.Multicall.address
     }
   },
   testnet: {
@@ -42,14 +46,17 @@ const configurations: { [env: string]: Configuration } = {
     backendUrl: 'https://api.diamondhand.fi',
     backendDisabled: false,
     farms: AllFarms,
+    vaults: AllVaults,
     abis: {
-      SERC20: deploymentLocal.SERC20.abi,
+      SERC20: deploymentLocal.TATU.abi,
       MasterChef: deploymentLocal.MasterChef.abi,
+      VaultSLP: deploymentLocal.VaultSLP.abi,
     },
     addresses: {
-      SERC20: deploymentLocal.SERC20.address,
+      SERC20: deploymentLocal.TATU.address,
       MasterChef: deploymentLocal.MasterChef.address,
-      Multicall: deploymentLocal.Multicall.address,
+      VaultSLP: deploymentLocal.VaultSLP.address,
+      Multicall: deploymentLocal.Multicall.address
     }
   },
   mainnet: {
@@ -63,14 +70,17 @@ const configurations: { [env: string]: Configuration } = {
     gasLimitMultiplier: 1.1,
     maxBalanceRefresh: 1000000,
     farms: AllFarms,
+    vaults: AllVaults,
     abis: {
-      SERC20: deploymentLocal.SERC20.abi,
+      SERC20: deploymentLocal.TATU.abi,
       MasterChef: deploymentLocal.MasterChef.abi,
+      VaultSLP: deploymentLocal.VaultSLP.abi,
     },
     addresses: {
-      SERC20: deploymentLocal.SERC20.address,
+      SERC20: deploymentLocal.TATU.address,
       MasterChef: deploymentLocal.MasterChef.address,
-      Multicall: deploymentLocal.Multicall.address,
+      VaultSLP: deploymentLocal.VaultSLP.address,
+      Multicall: deploymentLocal.Multicall.address
     }
   },
 };

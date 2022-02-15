@@ -3,28 +3,28 @@ import { BigNumber } from '@ethersproject/bignumber';
 import { useWeb3React } from '@web3-react/core';
 import useDiamondHand from './useDiamondHand';
 
-const useMyReward = (poolId: BigNumber) => {
+const useMyVaultDeposited = () => {
   const dh = useDiamondHand();
   const [amount, setAmount] = useState<BigNumber>();
   const { account } = useWeb3React();
 
   useEffect(() => {
     let mounted = true;
-    if (!dh || !poolId || !account) {
+    if (!dh || !account) {
       return;
     }
-    dh.MASTERCHEF.getPendingReward(poolId, account).then((reward) => {
+    dh.VAULTSLP.getUserDeposited().then((amount) => {
       if (!mounted) {
         return;
       }
-      setAmount(reward);
+      setAmount(amount);
     });
     return () => {
       mounted = false;
     };
-  }, [dh, poolId, account]);
+  }, [dh, account]);
 
   return amount;
 };
 
-export default useMyReward;
+export default useMyVaultDeposited;

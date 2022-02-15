@@ -49,10 +49,9 @@ export const buyTokenLinks: { [key: string]: string } = {
 
 export const AllFarms: Farm[] = [
   {
-    masterChef: '0xa37DD1f62661EB18c338f18Cf797cff8b5102d8e',
     rewardTokenSymbol: 'SERC20',
     rewardTokenDecimals: 6,
-    rewardTokenAddress: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+    rewardTokenAddress: '0xcB6F356Fb0B7bb57daa6aC96B40C667455Bf35A2',
     profitSharing: true,
     pools: [
       {
@@ -65,8 +64,21 @@ export const AllFarms: Farm[] = [
         profitSharing: false,
         market: 'SushiSwap',
         marketSymbol: 'SUSHISWAP',
-        partnerPoolAddress: '0xa0dbeb0cff5838c439daca79067d46586c3b5641',
+        partnerPoolAddress: '0x0fd2594cce912b28206576f512453726e9bdfe2f',
         wantSymbol: "SERC20/MATIC"
+      },
+      {
+        id: 1,
+        token0: 'SERC20',
+        token1: 'USDC',
+        rewardToken: 'SERC20',
+        isLp: true,
+        stable: false,
+        profitSharing: false,
+        market: 'SushiSwap',
+        marketSymbol: 'SUSHISWAP',
+        partnerPoolAddress: '0x431c541f69a5d4b5bc9469dd84a31ca26988fd85',
+        wantSymbol: "SERC20/USDC"
       },
     ],
   },

@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 import { getDisplayNumber } from 'src/utils/formatBN';
 import { BigNumber } from '@ethersproject/bignumber';
 import styled from 'styled-components';
@@ -21,7 +21,6 @@ interface TokenSliderInputProps {
 
 const TokenSliderInput: React.ForwardRefRenderFunction<unknown, TokenSliderInputProps> = (
   {
-    token,
     hasError,
     disabled,
     decimals,
@@ -104,33 +103,6 @@ const TokenSliderInput: React.ForwardRefRenderFunction<unknown, TokenSliderInput
     }
     return true;
   };
-
-  const onSliderChange = useCallback(
-    (value) => {
-      const selectedBalance = maxBalance || balance;
-      if (!selectedBalance || selectedBalance.eq(BigNumber.from(0))) return;
-      const newInput = selectedBalance.mul(BigNumber.from(value)).div(BigNumber.from(100));
-      patchInputValue(newInput);
-      onChange(newInput);
-    },
-    [maxBalance, balance, patchInputValue, onChange],
-  );
-
-  const sliderValue = useMemo(() => {
-    const selectedBalance = maxBalance || balance;
-    if (!selectedBalance || selectedBalance.eq(BigNumber.from(0))) return 0;
-    const parseBalance = getDisplayNumber(
-      selectedBalance,
-      decimals,
-      precision,
-      false,
-      false,
-      false,
-      false,
-    );
-    return (+input / +parseBalance) * 100;
-  }, [maxBalance, balance, decimals, input, precision]);
-
   return (
     <StyledContainer>
       <InputContainer>
@@ -158,16 +130,6 @@ const TokenSliderInput: React.ForwardRefRenderFunction<unknown, TokenSliderInput
     </StyledContainer>
   );
 };
-
-const StyledLabel = styled.div<{ active?: boolean }>`
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  color: ${({ active }) => (active ? '#ffffff' : '#91908f')};
-  :hover {
-    color: #ffffff;
-  }
-`;
 
 const InputContainer = styled.div`
   background: #181d4c;

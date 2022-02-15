@@ -5,12 +5,6 @@
   "dependencies": {
     "@binance-chain/bsc-connector": "^1.0.0",
     "@ethersproject/providers": "^5.0.17",
-    "@fortawesome/fontawesome-svg-core": "^1.2.32",
-    "@fortawesome/free-solid-svg-icons": "^5.15.1",
-    "@fortawesome/pro-light-svg-icons": "^5.15.3",
-    "@fortawesome/pro-regular-svg-icons": "^5.15.3",
-    "@fortawesome/pro-solid-svg-icons": "^5.15.3",
-    "@fortawesome/react-fontawesome": "^0.1.14",
     "@loadable/component": "^5.14.1",
     "@metamask/detect-provider": "^1.2.0",
     "@reduxjs/toolkit": "^1.5.0",

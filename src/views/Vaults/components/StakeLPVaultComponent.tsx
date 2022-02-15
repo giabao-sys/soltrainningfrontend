@@ -2,17 +2,16 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import Number from '../../../components/Number';
 import { BigNumber } from '@ethersproject/bignumber';
 import styled from 'styled-components';
-import TokenSliderInput from './TokenSliderInput';
-import { PoolConfig } from 'src/diamondhand/config';
 import useDiamondHand from 'src/hooks/useDiamondHand';
 import useApprove, { ApprovalState } from 'src/hooks/useApprove';
-import { useConfiguration } from 'src/contexts/ConfigProvider/ConfigProvider';
 import useTryConnect from 'src/hooks/useTryConnect';
 import useHandleTransactionReceipt from 'src/hooks/useHandleTransactionReceipt';
 import { useTokenBalance } from 'src/contexts/AccountBalanceProvider/AccountBalanceProvider';
+import TokenSliderInput from 'src/views/Farms/components/TokenSliderInput';
+import { Vault } from 'src/diamondhand/config';
 
-interface StakeLPComponentProps {
-  poolConfig: PoolConfig;
+interface StakeLPVaultComponentProps {
+  vaultInfo: Vault;
 }
 
 enum ButtonStatus {
@@ -24,19 +23,18 @@ enum ButtonStatus {
   ready = 20,
 }
 
-const StakeLPComponent: React.FC<StakeLPComponentProps> = ({ poolConfig }) => {
-  const { token0, token1 } = poolConfig;
+const StakeLPVaultComponent: React.FC<StakeLPVaultComponentProps> = ({ vaultInfo }) => {
+  const { token0, token1, poolId } = vaultInfo;
   const [amount, setAmount] = useState(BigNumber.from(0));
   
   const refInput = useRef(null);
   const diamondHand = useDiamondHand();
   const { tryConnect } = useTryConnect();
-  const config = useConfiguration();
   const handleTransactionReceipt = useHandleTransactionReceipt();
-  const SLP = diamondHand?.SLP(poolConfig.id);
+  const SLP = diamondHand?.SLP(poolId);
   const [approvalLPState, approveLP] = useApprove(
     SLP,
-    config.addresses.MasterChef,
+    diamondHand?.VAULTSLP?.address,
   );
   const balance = useTokenBalance(SLP);
   const status = useMemo(() => {
@@ -53,15 +51,15 @@ const StakeLPComponent: React.FC<StakeLPComponentProps> = ({ poolConfig }) => {
 
   const deposit = useCallback(async () => {
     const tx = await handleTransactionReceipt(
-      diamondHand?.MASTERCHEF.deposit(BigNumber.from(poolConfig.id), amount),
-      `Deposit ${amount}`,
+      diamondHand?.VAULTSLP.deposit(amount),
+      `Deposit to vault ${amount}`,
     );
 
     if (tx && tx.response) {
       await tx.response.wait();
       tx.hideModal();
     }
-  }, [diamondHand?.MASTERCHEF, handleTransactionReceipt, amount, poolConfig.id]);
+  }, [diamondHand?.VAULTSLP, handleTransactionReceipt, amount]);
 
   const onClickDeposit = useCallback(async () => {
     switch (status) {
@@ -98,7 +96,7 @@ const StakeLPComponent: React.FC<StakeLPComponentProps> = ({ poolConfig }) => {
       <Balance>
         Balance:&nbsp;
         <span className="balance-click">
-          <Number value={balance} decimals={18} precision={6} />
+          {balance && <Number value={balance} decimals={18} precision={6} />}
         </span>
         &nbsp; {token0}
         {token1 ? '/' + token1 : ''}
@@ -121,7 +119,7 @@ const StakeLPComponent: React.FC<StakeLPComponentProps> = ({ poolConfig }) => {
   );
 };
 
-export default StakeLPComponent;
+export default StakeLPVaultComponent;
 
 const StyledContainer = styled.div``;
 

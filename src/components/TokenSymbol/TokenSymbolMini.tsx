@@ -1,6 +1,7 @@
 import React from 'react';
 
 import MATICLogo from 'src/assets/img/tokens/MATIC.png';
+import ETHLogo from 'src/assets/img/tokens/ETH.png';
 import SERC20Logo from 'src/assets/img/tokens/ADA.png';
 import USDCLogo from 'src/assets/img/tokens/USDC.png';
 import NoLogo from 'src/assets/img/no-logo.png';
@@ -8,6 +9,7 @@ import styled from 'styled-components';
 
 const logosBySymbol: { [title: string]: string } = {
   MATIC: MATICLogo,
+  ETH: ETHLogo,
   SERC20: SERC20Logo,
   USDC: USDCLogo,
   NOLOGO: NoLogo,

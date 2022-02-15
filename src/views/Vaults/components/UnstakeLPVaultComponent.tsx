@@ -2,55 +2,55 @@ import React, { useCallback, useRef, useState } from 'react';
 import Number from '../../../components/Number';
 import { BigNumber } from '@ethersproject/bignumber';
 import styled from 'styled-components';
-import TokenSliderInput from './TokenSliderInput';
 import Spacer from 'src/components/Spacer';
-import { PoolConfig } from 'src/diamondhand/config';
+import { Vault } from 'src/diamondhand/config';
 import useHandleTransactionReceipt from 'src/hooks/useHandleTransactionReceipt';
 import useDiamondHand from 'src/hooks/useDiamondHand';
-import useMyDeposited from 'src/hooks/useMyDeposited';
+import TokenSliderInput from 'src/views/Farms/components/TokenSliderInput';
+import useMyVaultDeposited from 'src/hooks/useMyVaultDeposited';
 
-interface UnstakeLPComponentProps {
-  poolConfig: PoolConfig;
+interface UnstakeLPVaultComponentProps {
+  vaultInfo: Vault;
 }
 
-const UnstakeLPComponent: React.FC<UnstakeLPComponentProps> = ({ poolConfig }) => {
-  const { token0, token1 } = poolConfig;
+const UnstakeLPVaultComponent: React.FC<UnstakeLPVaultComponentProps> = ({ vaultInfo }) => {
+  const { token0, token1 } = vaultInfo;
   const [amount, setAmount] = useState(BigNumber.from(0));
   const refInput = useRef(null);
   const handleTransactionReceipt = useHandleTransactionReceipt();
   const diamondHand = useDiamondHand();
-  const deposited = useMyDeposited(BigNumber.from(poolConfig.id));
+  const deposited = useMyVaultDeposited();
 
   const withdraw = useCallback(async () => {
     const tx = await handleTransactionReceipt(
-      diamondHand?.MASTERCHEF.withdraw(BigNumber.from(poolConfig.id), amount),
-      `withdraw ${amount}`,
+      diamondHand?.VAULTSLP.withdraw(amount),
+      `withdraw from farm ${amount}`,
     );
 
     if (tx && tx.response) {
       await tx.response.wait();
       tx.hideModal();
     }
-  }, [diamondHand?.MASTERCHEF, handleTransactionReceipt, amount, poolConfig.id]);
+  }, [diamondHand?.VAULTSLP, handleTransactionReceipt, amount]);
 
   const withdrawAll = useCallback(async () => {
     const tx = await handleTransactionReceipt(
-      diamondHand?.MASTERCHEF.withdrawAll(BigNumber.from(poolConfig.id)),
-      `withdraw all`,
+      diamondHand?.VAULTSLP.withdrawAll(),
+      `withdraw all from farm`,
     );
 
     if (tx && tx.response) {
       await tx.response.wait();
       tx.hideModal();
     }
-  }, [diamondHand?.MASTERCHEF, handleTransactionReceipt, poolConfig.id]);
+  }, [diamondHand?.VAULTSLP, handleTransactionReceipt]);
 
   return (
     <StyledContainer>
       <Balance>
         Deposited:&nbsp;
         <span className="balance-click">
-          <Number value={deposited} decimals={18} precision={6} />
+          <Number value={deposited} decimals={18} precision={16} />
         </span>
         &nbsp; {token0}
         {token1 ? '/' + token1 : ''}
@@ -75,7 +75,7 @@ const UnstakeLPComponent: React.FC<UnstakeLPComponentProps> = ({ poolConfig }) =
   );
 };
 
-export default UnstakeLPComponent;
+export default UnstakeLPVaultComponent;
 
 const StyledContainer = styled.div``;
 

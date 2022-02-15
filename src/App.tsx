@@ -19,6 +19,7 @@ import MainWrapper from './MainWrapper';
 import { withPreload } from './hooks/usePreload';
 import Farms from './views/Farms';
 import { AccountBalanceProvider } from './contexts/AccountBalanceProvider/AccountBalanceProvider';
+import Vaults from './views/Vaults';
 
 const App: React.FC = () => {
   return (
@@ -29,12 +30,17 @@ const App: React.FC = () => {
             <StyledHeaderContainer>
               <Header />
             </StyledHeaderContainer>
-            <Switch>
-              <Route path="/" exact>
+            <StyledBodyContainer>
+              <Switch>
+              <Route path="/Farms" exact>
                 <Farms />
               </Route>
-              <Redirect to="/" />
+              <Route path="/Vault" exact>
+                <Vaults />
+              </Route>
+              <Redirect to="/Farms" />
             </Switch>
+            </StyledBodyContainer>
           </MainWrapper>
         </Router>
       </StyledSite>
@@ -61,7 +67,9 @@ const StyledHeaderContainer = styled.div`
     padding: 20px 16px 0 16px;
   }
 `;
-
+const StyledBodyContainer = styled.div`
+  margin: 0 15%;
+`;
 const Providers: React.FC = ({ children }) => {
   return (
     <ThemeProvider theme={theme}>
